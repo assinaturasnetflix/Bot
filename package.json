@@ -1,0 +1,19 @@
+{
+  "name": "brainskill-telegram-bot",
+  "version": "1.0.0",
+  "description": "Bot de suporte para a plataforma de jogo de damas BrainSkill.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "BrainSkill Team",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

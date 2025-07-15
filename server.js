@@ -1,41 +1,34 @@
 // server.js - Bot de Suporte INDEPENDENTE para o BrainSkill no Telegram
 
-// É obrigatório usar variáveis de ambiente na Vercel
 require('dotenv').config();
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 
-// Obtenha o token do bot a partir das variáveis de ambiente
 const token = process.env.TELEGRAM_BOT_TOKEN;
-
-// A Vercel fornece esta variável de ambiente automaticamente com a URL do seu deploy
 const vercelUrl = process.env.VERCEL_URL;
-
-// Crie a instância do bot sem polling
 const bot = new TelegramBot(token);
-
-// A URL completa do nosso webhook
 const webhookUrl = `https://${vercelUrl}/api/bot`;
 
-// Configure o webhook para que o Telegram envie as mensagens para a nossa URL
 bot.setWebHook(webhookUrl)
     .then(() => console.log(`Webhook configurado com sucesso para a URL: ${webhookUrl}`))
     .catch((err) => console.error('Erro ao configurar o webhook:', err));
 
-// Crie uma aplicação Express
 const app = express();
 app.use(express.json());
 
-// Este é o único endpoint que a nossa aplicação terá.
-// O Telegram irá fazer um pedido POST para esta rota sempre que receber uma mensagem.
-app.post('/api/bot', (req, res) => {
-    bot.processUpdate(req.body);
-    res.sendStatus(200); // Envia uma resposta 'OK' para o Telegram para confirmar o recebimento
+// --- ROTA DE "HEALTH CHECK" ADICIONADA AQUI ---
+// Esta rota responde a quem visita a URL principal no navegador.
+app.get('/', (req, res) => {
+    res.send('Bot de Suporte do BrainSkill está online e à escuta!');
 });
 
-// --- Definição dos Comandos e Menus (lógica do bot) ---
+app.post('/api/bot', (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
 
-// Define os comandos que aparecerão no botão "Menu" do Telegram
+// --- O resto da lógica do bot permanece igual ---
+
 bot.setMyCommands([
     { command: 'start', description: '🚀 Iniciar o bot e ver o menu principal' },
     { command: 'ajuda', description: '📞 Obter ajuda e links de suporte' },
@@ -53,7 +46,6 @@ Estou aqui para ajudar!
 
 const webAppUrl = 'https://t.me/brainskill1_bot/Brainskill';
 
-// Teclado principal com todos os botões inline
 const mainKeyboard = {
     inline_keyboard: [
         [
@@ -75,7 +67,6 @@ const mainKeyboard = {
     ]
 };
 
-// Quando um utilizador envia /start
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, welcomeMessage, {
@@ -84,7 +75,6 @@ bot.onText(/\/start/, (msg) => {
     });
 });
 
-// Responde ao comando /ajuda
 bot.onText(/\/ajuda/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 'Precisa de ajuda? Clique no botão abaixo para ir para a nossa página de suporte.', {
@@ -96,7 +86,6 @@ bot.onText(/\/ajuda/, (msg) => {
     });
 });
 
-// Responde ao comando /regras
 bot.onText(/\/regras/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 'Consulte as nossas regras e políticas nos links abaixo:', {
@@ -112,7 +101,6 @@ bot.onText(/\/regras/, (msg) => {
     });
 });
 
-// Responde ao comando /webapp
 bot.onText(/\/webapp/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 'Clique no botão abaixo para abrir a plataforma BrainSkill diretamente no Telegram!', {
@@ -124,5 +112,4 @@ bot.onText(/\/webapp/, (msg) => {
     });
 });
 
-// Exporta a aplicação Express para a Vercel poder usá-la
 module.exports = app;

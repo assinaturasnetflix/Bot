@@ -1,13 +1,39 @@
-// server.js - Lógica do Bot de Suporte para o BrainSkill no Telegram
+// server.js - Bot de Suporte INDEPENDENTE para o BrainSkill no Telegram
 
-// É altamente recomendado mover o token para um ficheiro .env para segurança
-// Ex: const token = process.env.TELEGRAM_BOT_TOKEN;
-const token = '7958682758:AAGpMg_ABXmFHynJGheUUc4394WuuZUhBnE';
-
+// É obrigatório usar variáveis de ambiente na Vercel
+require('dotenv').config();
+const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 
-// Inicializa o bot a usar o método "polling" para obter novas atualizações.
-const bot = new TelegramBot(token, { polling: true });
+// Obtenha o token do bot a partir das variáveis de ambiente
+const token = process.env.TELEGRAM_BOT_TOKEN;
+
+// A Vercel fornece esta variável de ambiente automaticamente com a URL do seu deploy
+const vercelUrl = process.env.VERCEL_URL;
+
+// Crie a instância do bot sem polling
+const bot = new TelegramBot(token);
+
+// A URL completa do nosso webhook
+const webhookUrl = `https://${vercelUrl}/api/bot`;
+
+// Configure o webhook para que o Telegram envie as mensagens para a nossa URL
+bot.setWebHook(webhookUrl)
+    .then(() => console.log(`Webhook configurado com sucesso para a URL: ${webhookUrl}`))
+    .catch((err) => console.error('Erro ao configurar o webhook:', err));
+
+// Crie uma aplicação Express
+const app = express();
+app.use(express.json());
+
+// Este é o único endpoint que a nossa aplicação terá.
+// O Telegram irá fazer um pedido POST para esta rota sempre que receber uma mensagem.
+app.post('/api/bot', (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200); // Envia uma resposta 'OK' para o Telegram para confirmar o recebimento
+});
+
+// --- Definição dos Comandos e Menus (lógica do bot) ---
 
 // Define os comandos que aparecerão no botão "Menu" do Telegram
 bot.setMyCommands([
@@ -27,7 +53,7 @@ Estou aqui para ajudar!
 
 const webAppUrl = 'https://t.me/brainskill1_bot/Brainskill';
 
-// Teclado principal com todos os botões
+// Teclado principal com todos os botões inline
 const mainKeyboard = {
     inline_keyboard: [
         [
@@ -37,7 +63,7 @@ const mainKeyboard = {
             { text: '📞 Ajuda & Suporte', url: 'https://brainskill.site/support' }
         ],
         [
-            { text: '룰 Como Jogar', url: 'https://brainskill.site/how-to-play' }
+            { text: '♟️ Como Jogar', url: 'https://brainskill.site/how-to-play' }
         ],
         [
             { text: '📜 Termos e Condições', url: 'https://brainskill.site/terms' },
@@ -76,7 +102,7 @@ bot.onText(/\/regras/, (msg) => {
     bot.sendMessage(chatId, 'Consulte as nossas regras e políticas nos links abaixo:', {
         reply_markup: {
             inline_keyboard: [
-                [{ text: '룰 Como Jogar', url: 'https://brainskill.site/how-to-play' }],
+                [{ text: '♟️ Como Jogar', url: 'https://brainskill.site/how-to-play' }],
                 [
                     { text: '📜 Termos e Condições', url: 'https://brainskill.site/terms' },
                     { text: '🔒 Privacidade', url: 'https://brainskill.site/privacy' }
@@ -98,9 +124,5 @@ bot.onText(/\/webapp/, (msg) => {
     });
 });
 
-console.log('🤖 Bot do BrainSkill iniciado com sucesso...');
-
-// Opcional: para lidar com erros de forma mais graciosa
-bot.on('polling_error', (error) => {
-    console.error(`[Erro de Polling] - ${error.code}: ${error.message}`);
-});
+// Exporta a aplicação Express para a Vercel poder usá-la
+module.exports = app;

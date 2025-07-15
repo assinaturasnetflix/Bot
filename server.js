@@ -5,29 +5,27 @@ const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
-const vercelUrl = process.env.VERCEL_URL;
-const bot = new TelegramBot(token);
-const webhookUrl = `https://${vercelUrl}/api/bot`;
 
-bot.setWebHook(webhookUrl)
-    .then(() => console.log(`Webhook configurado com sucesso para a URL: ${webhookUrl}`))
-    .catch((err) => console.error('Erro ao configurar o webhook:', err));
+// Crie a instância do bot
+const bot = new TelegramBot(token);
+
+// A linha bot.setWebHook() foi REMOVIDA. Nós configuramos manualmente.
 
 const app = express();
 app.use(express.json());
 
-// --- ROTA DE "HEALTH CHECK" ADICIONADA AQUI ---
-// Esta rota responde a quem visita a URL principal no navegador.
+// Rota de "health check" para o navegador
 app.get('/', (req, res) => {
     res.send('Bot de Suporte do BrainSkill está online e à escuta!');
 });
 
+// Rota principal que recebe os updates do Telegram
 app.post('/api/bot', (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
 });
 
-// --- O resto da lógica do bot permanece igual ---
+// --- O resto da lógica do bot permanece exatamente igual ---
 
 bot.setMyCommands([
     { command: 'start', description: '🚀 Iniciar o bot e ver o menu principal' },

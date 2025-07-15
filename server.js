@@ -25,7 +25,7 @@ app.post('/api/bot', (req, res) => {
     res.sendStatus(200);
 });
 
-// --- O resto da lógica do bot permanece exatamente igual ---
+// --- O resto da lógica do bot ---
 
 bot.setMyCommands([
     { command: 'start', description: '🚀 Iniciar o bot e ver o menu principal' },
@@ -42,11 +42,14 @@ Use os botões abaixo para navegar rapidamente ou use o **Menu de Comandos** par
 Estou aqui para ajudar!
 `;
 
-const webAppUrl = 'https://t.me/brainskill1_bot/Brainskill';
+// --- CORREÇÃO APLICADA AQUI ---
+// A URL da Web App deve ser uma URL HTTPS direta para o seu site.
+const webAppUrl = 'https://brainskill.site';
 
 const mainKeyboard = {
     inline_keyboard: [
         [
+            // Este botão agora aponta para uma URL válida.
             { text: '🎮 Abrir a Plataforma BrainSkill', web_app: { url: webAppUrl } }
         ],
         [

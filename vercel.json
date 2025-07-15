@@ -12,7 +12,7 @@
       "dest": "/server.js"
     },
     {
-      "src": "/(how-to-play|history|game|forgot-password|lobby|login|privacy|profile|public-profile|ranking|register|responsible-gaming|support|terms|wallet|admin-dashboard|admin-login|admin-settings|admin-transactions|admin-users|landing|index)\\.html",
+      "src": "/(.*)\\.html",
       "dest": "/$1.html"
     },
     {
